@@ -4,7 +4,6 @@ require 'haml'
 require 'sass'
 require 'httparty'
 require 'json'
-require 'maruku'
 require 'pp'
 require 'date'
 

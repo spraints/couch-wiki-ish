@@ -19,7 +19,7 @@ require 'haml'
 require 'sass'
 require 'httparty'
 require 'json'
-require 'maruku'
+require 'maruku' || require 'bluecloth' # or any markdown lib haml supports
 
 3. rake  (This will load stuff into a 'wiki' database. If you don't want it
           to do that, make the appropriate change to Rakefile and app.rb)
