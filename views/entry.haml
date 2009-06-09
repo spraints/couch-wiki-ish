@@ -13,4 +13,5 @@
 
 %h5 Content
 .entry_contents
-  &= @entry['contents']
+  :maruku
+    #{@entry['contents']}

@@ -2,6 +2,13 @@
 %input{:id => 'post_topic', :name => 'topics', :type => 'text', :value => (@entry['topics'] || []).join(', ')}
 %br
 %label{:for => 'post_contents'} Contents
+%span.help
+  (
+  %a{:href => 'http://daringfireball.net/projects/markdown/basics'} markdown help
+  )
+  (
+  %a{:href => 'http://maruku.rubyforge.org/maruku.html'} maruku docs
+  )
 %textarea{:name => 'contents', :cols => 100, :rows => 10}&= @entry['contents']
 %br
 %input{:type => 'submit', :value => 'Save'}
