@@ -54,7 +54,7 @@ get '/entry/:id' do
 end
 
 get '/topic/:name' do
-  @related_topics = DB.get('_design/topics/_view/related', :query => {:key => params[:name].to_json})['rows'][0]['value']
+  @related_topics = DB.get('_design/topics/_view/related', :query => {:group => true, :startkey => [params[:name]].to_json, :endkey => [params[:name],{}].to_json})['rows'].collect { |row| row['key'][1] }
   @entries = DB.get('_design/entries/_view/by_topic', :query => {:key => params[:name].to_json})['rows'].collect { |row| row['value'] }
   haml :topic
 end

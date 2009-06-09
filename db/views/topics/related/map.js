@@ -8,7 +8,7 @@ function(doc)
       {
         if(i != j)
         {
-          emit(doc.topics[i], doc.topics[j]);
+          emit([doc.topics[i], doc.topics[j]], 1);
         }
       }
     }
