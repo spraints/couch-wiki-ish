@@ -10,9 +10,9 @@ class DB
 
   def self.perform_request(http_method, path, options)
     path = '/' + path unless path =~ /^\//
-    puts "#{http_method} #{path} ..."
+    #puts "#{http_method} #{path} ..."
     res = super(http_method, path, options)
-    pp res.delegate
+    #pp res.delegate
     res
   end
 
@@ -32,25 +32,40 @@ class DB
   end
 end
 
-task :default => :build
+task :default => :build_db
 
 task :reset_db do
   DB.delete '/'
   DB.put '/'
 end
 
-task :build => [:design_docs, :attachments]
+task :build_db => [:views]
 
-task :design_docs do
-  FileList['_design/*.js'].each do |f|
-    DB.update f.sub(/.js$/, ''), JSON.parse(File.read(f))
+def get_view_part(view_def, view_part, dir)
+  file_name = "#{dir}/#{view_part}.js"
+  if File.exist? file_name
+    view_def[view_part] = File.read file_name
   end
 end
 
-task :attachments do
-  FileList['_design/*/*'].each do |f|
-    puts f
-    p = Pathname.new f
-    DB.put f + '?rev=' + DB.get_rev(p.dirname), :body => p.read
+task :views do
+  Dir.chdir('db/views') do
+    FileList['*'].each do |design_doc|
+      doc_id = "_design/#{design_doc}"
+      doc = DB.get(doc_id).delegate
+      doc = {} if doc['error']
+      Dir.chdir(design_doc) do
+        FileList['*'].each do |view_name|
+          puts "Creating view #{design_doc}/#{view_name}"
+          view = {}
+          get_view_part(view, 'map', view_name)
+          get_view_part(view, 'reduce', view_name)
+          doc['views'] ||= {}
+          doc['views'][view_name] = view
+        end
+      end
+      res = DB.put doc_id, :body => doc.to_json
+      raise "Design doc #{doc_id} could not be created: #{res.inspect}" unless res['ok']
+    end
   end
 end

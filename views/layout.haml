@@ -1,0 +1,16 @@
+!!! Strict
+%html
+  %head
+    %title Matt's wiki
+    %link{:href => 'screen.css', :rel => 'stylesheet', :type => 'text/css', :media => 'screen, projection'}
+    %link{:href => 'print.css', :rel => 'stylesheet', :type => 'text/css', :media => 'print'}
+    /[if IE]
+      %link{:href => 'ie.css', :rel => 'stylesheet', :type => 'text/css', :media => 'screen, projection'}
+  %body
+    #container
+      #header
+        %h1 Matt's wiki
+      #content
+        -if @error
+          #errors&= @error
+        =yield

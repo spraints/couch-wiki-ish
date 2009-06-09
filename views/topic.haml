@@ -1,0 +1,14 @@
+%h2&= params[:name]
+
+%h5 Related Topics
+-@related_topics.each do |topic|
+  %a{:href => "/topic/#{topic}"}&= topic
+
+%h5 Content
+-@entries.each do |entry|
+  .entry
+    .entry_id
+      %a{:href => "/entry/#{entry['_id']}"}&= entry['_id']
+    .entry_contents
+      %pre
+        &= entry['contents']

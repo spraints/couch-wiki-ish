@@ -1,0 +1,7 @@
+Welcome to my wiki!
+
+%h2 Topics
+-@topics.each do |topic|
+  %a{:href => "/topic/#{topic}"}&= topic
+
+=haml :create, :layout => false

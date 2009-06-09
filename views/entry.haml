@@ -1,0 +1,12 @@
+%h2&= @entry['_id']
+
+-if @entry['topics']
+  %h5 Topics
+  -@entry['topics'].each do |topic|
+    %a{:href => "/topic/#{topic}"}&= topic
+-else
+  %h5 No topics have been designated
+
+%h5 Content
+%pre
+  &= @entry['contents']
