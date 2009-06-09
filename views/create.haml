@@ -3,10 +3,4 @@
   %label{:for => 'post_id'} ID / Name (can be blank for auto-id)
   %input{:id => 'post_id', :name => 'id', :type => 'text', :value => params[:id]}
   %br
-  %label{:for => 'post_topic'} Topic / keywords (separated by commas)
-  %input{:id => 'post_topic', :name => 'topic', :type => 'text', :value => params[:topic]}
-  %br
-  %label{:for => 'post_contents'} Contents
-  %textarea{:name => 'contents', :cols => 100, :rows => 10}=params[:contents]
-  %br
-  %input{:type => 'submit', :value => 'Save'}
+  =haml :form, :layout => false

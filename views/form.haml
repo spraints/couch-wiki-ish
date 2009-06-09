@@ -1,0 +1,7 @@
+%label{:for => 'post_topic'} Topic / keywords (separated by commas)
+%input{:id => 'post_topic', :name => 'topics', :type => 'text', :value => (@entry['topics'] || []).join(', ')}
+%br
+%label{:for => 'post_contents'} Contents
+%textarea{:name => 'contents', :cols => 100, :rows => 10}&= @entry['contents']
+%br
+%input{:type => 'submit', :value => 'Save'}

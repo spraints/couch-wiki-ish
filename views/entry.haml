@@ -1,4 +1,8 @@
 %h2&= @entry['_id']
+%a{:href => "/entry/#{@entry['_id']}/edit"} Edit
+%form{:action => "/entry/#{@entry['_id']}/delete", :method => :post}
+  %input{:type => 'hidden', :name => 'rev', :value => @entry['_rev']}
+  %input{:type => 'submit', :value => 'Delete'}
 
 -if @entry['topics']
   %h5 Topics

@@ -1,0 +1,7 @@
+%h2
+  Edit
+  %a{:href => "/entry/#{params[:id]}"}&= params[:id]
+
+%form{:action => "/entry/#{params[:id]}", :method => 'post'}
+  %input{:type => 'hidden', :name => 'rev', :value => @entry['_rev']}
+  =haml :form, :layout => false

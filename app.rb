@@ -19,38 +19,73 @@ class DB
     res
   end
 
-  def self.create(id, doc)
-    res = case id
-      when '', nil
-        self.post '/', :body => doc.to_json
-      else
-        self.put id, :body => doc.to_json
-      end
-    res['ok']
+  def self.save(id, doc)
+    case id
+    when '', nil
+      self.post '/', :body => doc.to_json
+    else
+      self.put id, :body => doc.to_json
+    end
   end
 end
 
 get '/' do
   topics_result = DB.get('_design/topics/_view/all', :query => {:group => true})
   @topics = topics_result['rows'].collect { |row| row['key'] }
+  @entry = {}
   haml :welcome
 end
 
+helpers do
+  def build_entry
+    {
+      'topics' => params[:topics].split(',').collect { |s| s.strip },
+      'contents' => params[:contents]
+    }
+  end
+end
+
 post '/entry' do
-  id = params[:id]
-  topics = params[:topic].split(',')
-  contents = params[:contents]
-  if DB.create id, :topics => topics, :contents => contents
-    redirect '/'
+  @entry = build_entry
+  res = DB.save(params[:id], @entry)
+  if(res['ok'])
+    redirect "/entry/#{res['id']}"
   else
-    @error = 'Unable to save the document.'
+    @error = "Unable to save the document: #{res.inspect}"
     haml :welcome
+  end
+end
+
+post '/entry/:id' do
+  @entry = build_entry.merge '_rev' => params[:rev]
+  res = DB.save(params[:id], @entry)
+  if(res['ok'])
+    redirect "/entry/#{res['id']}"
+  else
+    @error = "Unable to save the document: #{res.inspect}"
+    haml :edit
   end
 end
 
 get '/entry/:id' do
   @entry = DB.get params[:id]
-  haml :entry
+  @entry['error'] ? pass : haml(:entry)
+end
+
+get '/entry/:id/edit' do
+  @entry = DB.get params[:id]
+  haml :edit
+end
+
+post '/entry/:id/delete' do
+  res = DB.delete params[:id], :query => {:rev => params['rev']}
+  if(res['ok'])
+    redirect '/'
+  else
+    @error = "Unable to save the document: #{res.inspect}"
+    @entry = DB.get params[:id]
+    haml :entry
+  end
 end
 
 get '/topic/:name' do
