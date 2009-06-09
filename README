@@ -1,0 +1,26 @@
+This is a super-simple wiki-like app.
+
+It's almost like del.icio.us crossed with a wiki... when you create an
+entry, you assign topics (like tags). Then you can view entries on their own
+or grouped with others in the same topic.
+
+The idea is that you have a lot of disjointed thoughts that almost fit
+together, or sometimes fit together in different ways.
+
+-----
+
+To run, you'll need to do the following:
+
+1. Install couchdb and make sure it works. Start it.
+
+2. Install enough gems to make these lines work:
+require 'sinatra'
+require 'haml'
+require 'sass'
+require 'httparty'
+require 'json'
+
+3. rake  (This will load stuff into a 'wiki' database. If you don't want it
+          to do that, make the appropriate change to Rakefile and app.rb)
+
+4. ruby app.db
