@@ -39,6 +39,10 @@ task :reset_db do
   DB.put '/'
 end
 
+task :create_db do
+  DB.put '/'
+end
+
 task :build_db => [:views]
 
 def get_view_part(view_def, view_part, dir)
@@ -48,7 +52,7 @@ def get_view_part(view_def, view_part, dir)
   end
 end
 
-task :views do
+task :views => :create_db do
   Dir.chdir('db/views') do
     FileList['*'].each do |design_doc|
       doc_id = "_design/#{design_doc}"
