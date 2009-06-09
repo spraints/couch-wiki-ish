@@ -5,6 +5,7 @@ require 'sass'
 require 'httparty'
 require 'json'
 require 'pp'
+require 'date'
 
 class DB
   include HTTParty
@@ -13,6 +14,7 @@ class DB
 
   def self.perform_request(http_method, path, options)
     path = '/' + path unless path =~ /^\//
+    path = URI.encode path
     puts "#{http_method} #{path} #{options.inspect}"
     res = super(http_method, path, options)
     pp res.delegate
@@ -20,6 +22,7 @@ class DB
   end
 
   def self.save(id, doc)
+    doc = doc.merge :modified => DateTime.now
     case id
     when '', nil
       self.post '/', :body => doc.to_json
@@ -49,7 +52,7 @@ post '/entry' do
   @entry = build_entry
   res = DB.save(params[:id], @entry)
   if(res['ok'])
-    redirect "/entry/#{res['id']}"
+    redirect(URI.escape("/entry/#{res['id']}"))
   else
     @error = "Unable to save the document: #{res.inspect}"
     haml :welcome
@@ -60,7 +63,7 @@ post '/entry/:id' do
   @entry = build_entry.merge '_rev' => params[:rev]
   res = DB.save(params[:id], @entry)
   if(res['ok'])
-    redirect "/entry/#{res['id']}"
+    redirect(URI.escape("/entry/#{res['id']}"))
   else
     @error = "Unable to save the document: #{res.inspect}"
     haml :edit
