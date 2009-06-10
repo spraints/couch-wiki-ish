@@ -52,7 +52,20 @@ def get_view_part(view_def, view_part, dir)
   end
 end
 
-def make_views
+def make(doc, doc_id, part, *option_names)
+  if File.directory? part
+    Dir.chdir(part) do
+      FileList['*'].each do |view_name|
+        puts "Creating #{part} #{doc_id}/#{view_name}"
+        view = {}
+        option_names.each do |opt_name|
+          get_view_part(view, opt_name, view_name)
+        end
+        doc[part] ||= {}
+        doc[part][view_name] = view
+      end
+    end
+  end
 end
 
 task :design_docs => :create_db do
@@ -62,30 +75,8 @@ task :design_docs => :create_db do
       doc = DB.get(doc_id).delegate
       doc = {} if doc['error']
       Dir.chdir(design_doc) do
-        if File.directory? "views"
-          Dir.chdir('views') do
-            FileList['*'].each do |view_name|
-              puts "Creating view #{design_doc}/#{view_name}"
-              view = {}
-              get_view_part(view, 'map', view_name)
-              get_view_part(view, 'reduce', view_name)
-              doc['views'] ||= {}
-              doc['views'][view_name] = view
-            end
-          end
-        end
-        if File.directory? "fti"
-          Dir.chdir('fti') do
-            FileList['*'].each do |view_name|
-              puts "Creating fti #{design_doc}/#{view_name}"
-              view = {}
-              get_view_part(view, 'defaults', view_name)
-              get_view_part(view, 'index', view_name)
-              doc['fulltext'] ||= {}
-              doc['fulltext'][view_name] = view
-            end
-          end
-        end
+        make doc, design_doc, 'views', 'map', 'reduce'
+        make doc, design_doc, 'fulltext', 'defaults', 'index'
       end
       res = DB.put doc_id, :body => doc.to_json
       raise "Design doc #{doc_id} could not be created: #{res.inspect}" unless res['ok']
