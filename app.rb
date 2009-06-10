@@ -39,6 +39,12 @@ get '/' do
   haml :welcome
 end
 
+get '/search' do
+  search_results = DB.get('_fti/entries/all', :query => { :q => URI.encode(params['q']), :include_docs => true })
+  @entries = search_results['rows'].collect { |row| row['doc'] }
+  haml :search
+end
+
 get '/new' do
   @entry = {}
   haml :create
