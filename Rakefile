@@ -43,7 +43,7 @@ task :create_db do
   DB.put '/'
 end
 
-task :build_db => [:views, :fulltext]
+task :build_db => [:design_docs]
 
 def get_view_part(view_def, view_part, dir)
   file_name = "#{dir}/#{view_part}.js"
@@ -52,42 +52,39 @@ def get_view_part(view_def, view_part, dir)
   end
 end
 
-task :views => :create_db do
-  Dir.chdir('db/views') do
-    FileList['*'].each do |design_doc|
-      doc_id = "_design/#{design_doc}"
-      doc = DB.get(doc_id).delegate
-      doc = {} if doc['error']
-      Dir.chdir(design_doc) do
-        FileList['*'].each do |view_name|
-          puts "Creating view #{design_doc}/#{view_name}"
-          view = {}
-          get_view_part(view, 'map', view_name)
-          get_view_part(view, 'reduce', view_name)
-          doc['views'] ||= {}
-          doc['views'][view_name] = view
-        end
-      end
-      res = DB.put doc_id, :body => doc.to_json
-      raise "Design doc #{doc_id} could not be created: #{res.inspect}" unless res['ok']
-    end
-  end
+def make_views
 end
 
-task :fulltext => :create_db do
-  Dir.chdir('db/fulltext') do
+task :design_docs => :create_db do
+  Dir.chdir('db/design') do
     FileList['*'].each do |design_doc|
       doc_id = "_design/#{design_doc}"
       doc = DB.get(doc_id).delegate
       doc = {} if doc['error']
       Dir.chdir(design_doc) do
-        FileList['*'].each do |view_name|
-          puts "Creating fulltext view #{design_doc}/#{view_name}"
-          view = {}
-          get_view_part(view, 'defaults', view_name)
-          get_view_part(view, 'index', view_name)
-          doc['fulltext'] ||= {}
-          doc['fulltext'][view_name] = view
+        if File.directory? "views"
+          Dir.chdir('views') do
+            FileList['*'].each do |view_name|
+              puts "Creating view #{design_doc}/#{view_name}"
+              view = {}
+              get_view_part(view, 'map', view_name)
+              get_view_part(view, 'reduce', view_name)
+              doc['views'] ||= {}
+              doc['views'][view_name] = view
+            end
+          end
+        end
+        if File.directory? "fti"
+          Dir.chdir('fti') do
+            FileList['*'].each do |view_name|
+              puts "Creating fti #{design_doc}/#{view_name}"
+              view = {}
+              get_view_part(view, 'defaults', view_name)
+              get_view_part(view, 'index', view_name)
+              doc['fulltext'] ||= {}
+              doc['fulltext'][view_name] = view
+            end
+          end
         end
       end
       res = DB.put doc_id, :body => doc.to_json
