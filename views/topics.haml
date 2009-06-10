@@ -1,0 +1,10 @@
+-@topics.each do |topic|
+  %h2
+    &= topic
+    %a{:href => multi_topic_path(@topics - [topic])} -
+
+%h5 Related Topics
+(todo)
+
+%h5 Content
+=haml :entries, :layout => false

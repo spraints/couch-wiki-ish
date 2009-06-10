@@ -1,17 +1,11 @@
 %h2&= params[:name]
 
 %h5 Related Topics
+%ul
 -@related_topics.each do |topic|
-  %a{:href => "/topic/#{topic}"}&= topic
+  %li
+    %a{:href => multi_topic_path(params[:name], topic)} +
+    %a{:href => "/topic/#{topic}"}&= topic
 
 %h5 Content
--@entries.each do |entry|
-  .entry
-    .entry_id
-      %a{:href => "/entry/#{entry['_id']}"}&= entry['_id']
-      (
-      %a{:href => "/entry/#{entry['_id']}/edit"} edit
-      )
-    .entry_contents
-      :markdown
-        #{entry['contents']}
+=haml :entries, :layout => false

@@ -39,12 +39,30 @@ get '/' do
   haml :welcome
 end
 
+get '/new' do
+  @entry = {}
+  haml :create
+end
+
 helpers do
   def build_entry
     {
       'topics' => params[:topics].split(',').collect { |s| s.strip },
       'contents' => params[:contents]
     }
+  end
+
+  def multi_topic_path(*topics)
+    "/topics/" + topics.join('/')
+  end
+
+  def get_entries(topic)
+    view = case topic
+           when Array then '_design/entries/_view/by_topics'
+           else '_design/entries/_view/by_topic'
+           end
+    res = DB.get(view, :query => { :key => topic.to_json })
+    return res['rows'].collect { |row| row['value'] }
   end
 end
 
@@ -93,13 +111,28 @@ end
 
 get '/topic/:name' do
   @related_topics = DB.get('_design/topics/_view/related', :query => {:group => true, :startkey => [params[:name]].to_json, :endkey => [params[:name],{}].to_json})['rows'].collect { |row| row['key'][1] }
-  @entries = DB.get('_design/entries/_view/by_topic', :query => {:key => params[:name].to_json})['rows'].collect { |row| row['value'] }
+  @entries = get_entries(params[:name])
   haml :topic
+end
+
+get '/topics/*' do
+  @topics = params[:splat][0].split('/')
+  case @topics.size
+  when 1 then redirect "/topic/#{URI.encode(@topics[0])}"
+  when 0 then redirect "/"
+  else
+    @entries = get_entries(@topics.sort)
+    haml :topics
+  end
 end
 
 [:screen, :print, :ie].each do |sheet|
   get "/#{sheet}.css" do
-    content_type 'text/css'
-    sass sheet
+    if File.exist?("views/#{sheet}.sass")
+      content_type 'text/css'
+      sass sheet
+    else
+      pass
+    end
   end
 end

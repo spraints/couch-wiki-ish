@@ -1,0 +1,10 @@
+-@entries.each do |entry|
+  .entry
+    .entry_id
+      %a{:href => "/entry/#{entry['_id']}"}&= entry['_id']
+      (
+      %a{:href => "/entry/#{entry['_id']}/edit"} edit
+      )
+    .entry_contents
+      :markdown
+        #{entry['contents']}
