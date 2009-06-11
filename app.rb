@@ -40,7 +40,7 @@ get '/' do
 end
 
 get '/search' do
-  search_results = DB.get('_fti/entries/all', :query => { :q => URI.encode(params['q']), :include_docs => true })
+  search_results = DB.get('_fti/entries/all', :query => { :q => params['q'], :include_docs => true })
   @entries = search_results['rows'].collect { |row| row['doc'] }
   haml :search
 end
